@@ -25,39 +25,39 @@ def main():
     DB_USERNAME = config.get('main', 'DB_USERNAME')
     DB_PASSWORD = config.get('main', 'DB_PASSWORD')
 
-    # # First, currency conversion rates
-    # currFrom = "USD"
-    # currTo = ["KRW", "CAD"]
+    # First, currency conversion rates
+    currFrom = "USD"
+    currTo = ["KRW", "CAD"]
 
-    # urlParamTo = currTo[0]
-    # if len(currTo) > 1:
-    #     urlParamTo = ",".join(currTo)
+    urlParamTo = currTo[0]
+    if len(currTo) > 1:
+        urlParamTo = ",".join(currTo)
 
-    # url = "http://api.fixer.io/latest?base=" + currFrom + "&symbols=" + urlParamTo
-    # r_fixer = requests.get(url)
-    # r_fixer_dict = json.loads(r_fixer.text)
-    # usd_krw_rate = r_fixer_dict["rates"]['KRW']
-    # usd_cad_rate = r_fixer_dict["rates"]['CAD']
-    # logging.debug("usd-krw %s, usd-cad %s" % (usd_krw_rate, usd_cad_rate))
-
-
-    # # Next, let's get the prices from the exchanges
-    # korbit_prices_usd_dict = get_korbit_prices(usd_krw_rate)
-    # logging.debug("Korbit prices (USD): %s" % korbit_prices_usd_dict)
-
-    # # currently BTC, ETH, XRP
-    # kraken_prices_usd_dict = get_kraken_prices()
-    # logging.debug("Kraken prices (USD): %s" % kraken_prices_usd_dict)
+    url = "http://api.fixer.io/latest?base=" + currFrom + "&symbols=" + urlParamTo
+    r_fixer = requests.get(url)
+    r_fixer_dict = json.loads(r_fixer.text)
+    usd_krw_rate = r_fixer_dict["rates"]['KRW']
+    usd_cad_rate = r_fixer_dict["rates"]['CAD']
+    logging.debug("usd-krw %s, usd-cad %s" % (usd_krw_rate, usd_cad_rate))
 
 
-    # korbit_prices_usd_dict = {'btc': float(15000), 'eth': float(500), 'xrp': float(0.25)}
-    # kraken_prices_usd_dict = {'btc': float(10000), 'eth': float(400), 'xrp': float(0.125)}
-    korbit_prices_usd_dict = {'name': 'korbit', 'btc': float(15000), 'eth': float(440), 'xrp': float(0.24)}
-    kraken_prices_usd_dict = {'name': 'kraken', 'btc': float(14000), 'eth': float(430), 'xrp': float(0.26)}
-    # korbit = Exchange(name='korbit')
-    # korbit.btc=float(15000)
-    # korbit.eth=float(440)df
-    # korbit.xrp=float(0.24)
+    # Next, let's get the prices from the exchanges
+    korbit_prices_usd_dict = get_korbit_prices(usd_krw_rate)
+    logging.debug("Korbit prices (USD): %s" % korbit_prices_usd_dict)
+
+    # currently BTC, ETH, XRP
+    kraken_prices_usd_dict = get_kraken_prices()
+    logging.debug("Kraken prices (USD): %s" % kraken_prices_usd_dict)
+
+
+    # # korbit_prices_usd_dict = {'btc': float(15000), 'eth': float(500), 'xrp': float(0.25)}
+    # # kraken_prices_usd_dict = {'btc': float(10000), 'eth': float(400), 'xrp': float(0.125)}
+    # korbit_prices_usd_dict = {'name': 'korbit', 'btc': float(15000), 'eth': float(440), 'xrp': float(0.24)}
+    # kraken_prices_usd_dict = {'name': 'kraken', 'btc': float(14000), 'eth': float(430), 'xrp': float(0.26)}
+    # # korbit = Exchange(name='korbit')
+    # # korbit.btc=float(15000)
+    # # korbit.eth=float(440)df
+    # # korbit.xrp=float(0.24)
 
     exchanges = [korbit_prices_usd_dict, kraken_prices_usd_dict]
 
