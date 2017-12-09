@@ -7,7 +7,6 @@ import logging
 import time
 import datetime
 
-from sshtunnel import SSHTunnelForwarder
 import requests
 import pymysql
 
