@@ -27,7 +27,7 @@ def main():
 
     # First, currency conversion rates
     currFrom = "USD"
-    currTo = ["KRW", "CAD"]
+    currTo = ["KRW", "CAD", "MXN"]
 
     urlParamTo = currTo[0]
     if len(currTo) > 1:
@@ -38,7 +38,8 @@ def main():
     r_fixer_dict = json.loads(r_fixer.text)
     usd_krw_rate = r_fixer_dict["rates"]['KRW']
     usd_cad_rate = r_fixer_dict["rates"]['CAD']
-    logging.debug("usd-krw %s, usd-cad %s" % (usd_krw_rate, usd_cad_rate))
+    usd_mxn_rate = r_fixer_dict["rates"]['MXN']
+    logging.debug("usd-krw %s, usd-cad %s, usd-mxn %s" % (usd_krw_rate, usd_cad_rate, usd_mxn_rate))
 
 
     # Next, let's get the prices from the exchanges
@@ -49,6 +50,8 @@ def main():
     kraken_prices_usd_dict = get_kraken_prices()
     logging.debug("Kraken prices (USD): %s" % kraken_prices_usd_dict)
 
+    bitso_prices_usd_dict = get_bitso_prices(usd_mxn_rate)
+    logging.debug("Bitso prices (USD): %s" % bitso_prices_usd_dict)
 
     # # korbit_prices_usd_dict = {'btc': float(15000), 'eth': float(500), 'xrp': float(0.25)}
     # # kraken_prices_usd_dict = {'btc': float(10000), 'eth': float(400), 'xrp': float(0.125)}
@@ -59,7 +62,7 @@ def main():
     # # korbit.eth=float(440)df
     # # korbit.xrp=float(0.24)
 
-    exchanges = [korbit_prices_usd_dict, kraken_prices_usd_dict]
+    exchanges = [korbit_prices_usd_dict, kraken_prices_usd_dict, bitso_prices_usd_dict]
 
     
     # now, insert these prices into the mysql db
@@ -169,6 +172,42 @@ def get_kraken_prices():
 
     kraken_prices_usd_dict['name'] = "kraken"
     return kraken_prices_usd_dict
+
+def get_bitso_prices(usd_mx_rate):
+    # korbit
+    bitso_prices_mx_dict = {}
+
+    ## bitcoin
+    try:
+        r = requests.get('https://api.bitso.com/v3/ticker/?book=btc_mxn')
+        r_dict = json.loads(r.text)
+        bitso_prices_mx_dict["btc"] = float(r_dict["payload"]["last"])
+    except:
+        logging.error("Couldn't get or set Bitso BTC price.")
+
+    time.sleep(1)
+
+    ## eth
+    try:
+        r = requests.get('https://api.bitso.com/v3/ticker/?book=eth_mxn')
+        r_dict = json.loads(r.text)
+        bitso_prices_mx_dict["eth"] = float(r_dict["payload"]["last"])
+    except:
+        logging.error("Couldn't get or set Bitso ETH price.")
+
+    time.sleep(1)
+
+
+    logging.debug("Bitso prices (MXN): %s" % bitso_prices_mx_dict)
+
+    biso_prices_usd_dict = {}
+    for cryptocurrency in bitso_prices_mx_dict:
+        # price equals korbit_prices_krw_dict[item]
+        #print(korbit_prices_krw_dict[cryptocurrency])
+        biso_prices_usd_dict[cryptocurrency] = float(bitso_prices_mx_dict[cryptocurrency])/float(usd_mx_rate)
+
+    biso_prices_usd_dict['name'] = "bitso"
+    return biso_prices_usd_dict
 
 class Exchange(object):
     """ Exchange object.
