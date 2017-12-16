@@ -124,6 +124,14 @@ def get_korbit_prices(usd_krw_rate):
     except:
         logging.error("Couldn't get or set Korbit XRP price.")
 
+    ## eth classic
+    try:
+        r_korbit = requests.get('https://api.korbit.co.kr/v1/ticker?currency_pair=etc_krw')
+        r_korbit_dict = json.loads(r_korbit.text)
+        korbit_prices_krw_dict["etc"] = float(r_korbit_dict["last"])
+    except:
+        logging.error("Couldn't get or set Korbit ETC price.")
+
     logging.debug("Korbit prices (KRW): %s" % korbit_prices_krw_dict)
 
     korbit_prices_usd_dict = {}
@@ -169,6 +177,16 @@ def get_kraken_prices():
         kraken_prices_usd_dict["xrp"] = float(r_kraken_dict['result']['XXRPZUSD']['c'][0])
     except:
         logging.error("Couldn't get or set Kraken XRP price.")
+
+    time.sleep(1)
+
+    try:
+        r_kraken = requests.get('https://api.kraken.com/0/public/Ticker?pair=ETCUSD')
+        r_kraken_dict = json.loads(r_kraken.text)
+        #print(r_kraken_dict['result']['XETHZUSD']['c'][0])
+        kraken_prices_usd_dict["etc"] = float(r_kraken_dict['result']['XETCZUSD']['c'][0])
+    except:
+        logging.error("Couldn't get or set Kraken ETC price.")
 
     kraken_prices_usd_dict['name'] = "kraken"
     return kraken_prices_usd_dict
