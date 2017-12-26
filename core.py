@@ -53,6 +53,9 @@ def main():
     bitso_prices_usd_dict = get_bitso_prices(usd_mxn_rate)
     logging.debug("Bitso prices (USD): %s" % bitso_prices_usd_dict)
 
+    quadriga_prices_usd_dict = get_quadriga_prices(usd_cad_rate)
+    logging.debug("Quadriga prices (USD): %s" % quadriga_prices_usd_dict)
+
     # # korbit_prices_usd_dict = {'btc': float(15000), 'eth': float(500), 'xrp': float(0.25)}
     # # kraken_prices_usd_dict = {'btc': float(10000), 'eth': float(400), 'xrp': float(0.125)}
     # korbit_prices_usd_dict = {'name': 'korbit', 'btc': float(15000), 'eth': float(440), 'xrp': float(0.24)}
@@ -62,7 +65,7 @@ def main():
     # # korbit.eth=float(440)df
     # # korbit.xrp=float(0.24)
 
-    exchanges = [korbit_prices_usd_dict, kraken_prices_usd_dict, bitso_prices_usd_dict]
+    exchanges = [korbit_prices_usd_dict, kraken_prices_usd_dict, bitso_prices_usd_dict, quadriga_prices_usd_dict]
 
     
     # now, insert these prices into the mysql db
@@ -226,6 +229,42 @@ def get_bitso_prices(usd_mx_rate):
 
     biso_prices_usd_dict['name'] = "bitso"
     return biso_prices_usd_dict
+
+def get_quadriga_prices(usd_cad_rate):
+
+
+    quadriga_prices_cad_dict = {}
+
+    # bitcoin
+    params = (
+    ('book', 'btc_cad'),
+    )
+    r = requests.get('https://api.quadrigacx.com/v2/ticker', params=params)
+    r_dict = json.loads(r.text)
+    quadriga_prices_cad_dict["btc"] = float(r_dict["last"])
+
+    time.sleep(1)
+
+    # eth
+    params = (
+    ('book', 'eth_cad'),
+    )
+
+    r = requests.get('https://api.quadrigacx.com/v2/ticker', params=params)
+    r_dict = json.loads(r.text)
+    quadriga_prices_cad_dict["eth"] = float(r_dict["last"])
+
+    logging.debug("Quadriga prices (CAD): %s" % quadriga_prices_cad_dict)
+
+    quadriga_prices_usd_dict = {}
+    for cryptocurrency in quadriga_prices_cad_dict:
+        # price equals korbit_prices_krw_dict[item]
+        #print(korbit_prices_krw_dict[cryptocurrency])
+        quadriga_prices_usd_dict[cryptocurrency] = round(float(quadriga_prices_cad_dict[cryptocurrency])/float(usd_cad_rate), 3)
+
+    quadriga_prices_usd_dict['name'] = "quadriga"
+    return quadriga_prices_usd_dict
+
 
 class Exchange(object):
     """ Exchange object.
