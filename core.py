@@ -56,6 +56,9 @@ def main():
     quadriga_prices_usd_dict = get_quadriga_prices(usd_cad_rate)
     logging.debug("Quadriga prices (USD): %s" % quadriga_prices_usd_dict)
 
+    gemini_prices_usd_dict = get_gemini_prices()
+    logging.debug("Gemini prices (USD): %s" % gemini_prices_usd_dict)
+
     # # korbit_prices_usd_dict = {'btc': float(15000), 'eth': float(500), 'xrp': float(0.25)}
     # # kraken_prices_usd_dict = {'btc': float(10000), 'eth': float(400), 'xrp': float(0.125)}
     # korbit_prices_usd_dict = {'name': 'korbit', 'btc': float(15000), 'eth': float(440), 'xrp': float(0.24)}
@@ -65,7 +68,7 @@ def main():
     # # korbit.eth=float(440)df
     # # korbit.xrp=float(0.24)
 
-    exchanges = [korbit_prices_usd_dict, kraken_prices_usd_dict, bitso_prices_usd_dict, quadriga_prices_usd_dict]
+    exchanges = [korbit_prices_usd_dict, kraken_prices_usd_dict, bitso_prices_usd_dict, quadriga_prices_usd_dict, gemini_prices_usd_dict]
 
     
     # now, insert these prices into the mysql db
@@ -126,14 +129,6 @@ def get_korbit_prices(usd_krw_rate):
         korbit_prices_krw_dict["xrp"] = float(r_korbit_dict["last"])
     except:
         logging.error("Couldn't get or set Korbit XRP price.")
-
-    ## eth classic
-    try:
-        r_korbit = requests.get('https://api.korbit.co.kr/v1/ticker?currency_pair=etc_krw')
-        r_korbit_dict = json.loads(r_korbit.text)
-        korbit_prices_krw_dict["etc"] = float(r_korbit_dict["last"])
-    except:
-        logging.error("Couldn't get or set Korbit ETC price.")
 
     logging.debug("Korbit prices (KRW): %s" % korbit_prices_krw_dict)
 
@@ -265,6 +260,29 @@ def get_quadriga_prices(usd_cad_rate):
     quadriga_prices_usd_dict['name'] = "quadriga"
     return quadriga_prices_usd_dict
 
+
+def get_gemini_prices():
+
+    prices_dict = {}
+
+    ## bitcoin
+    try:
+        r = requests.get('https://api.gemini.com/v1/pubticker/btcusd')
+        r_dict = json.loads(r.text)
+        prices_dict["btc"] = float(r_dict["last"])
+    except:
+        logging.error("Couldn't get or set Gemini BTC price.")
+
+    ## ethereum
+    try:
+        r = requests.get('https://api.gemini.com/v1/pubticker/ethusd')
+        r_dict = json.loads(r.text)
+        prices_dict["eth"] = float(r_dict["last"])
+    except:
+        logging.error("Couldn't get or set Gemini BTC price.")
+
+    prices_dict['name'] = "gemini"
+    return prices_dict
 
 class Exchange(object):
     """ Exchange object.
